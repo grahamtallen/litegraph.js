@@ -108,7 +108,7 @@
             base_class.type = type;
 
             if (LiteGraph.debug) {
-                console.log("Node registered: " + type);
+                //console.log("Node registered: " + type);
             }
 
             var categories = type.split("/");
@@ -1564,6 +1564,7 @@
 
         this.inputs[name].type = type;
         this._version++;
+        console.log("INPUT CHANGED")
         if (this.onInputTypeChanged) {
             this.onInputTypeChanged(name, type);
         }
@@ -4433,6 +4434,14 @@ LGraphNode.prototype.executeAction = function(action)
         this.selected_nodes = {};
         this.selected_group = null;
 
+        console.log("this.visible_nodes",)
+        for(let n in this.visible_nodes){
+            console.log(this.visible_nodes[n])
+            if(this.visible_nodes[n] && this.visible_nodes[n] && typeof this.visible_nodes[n].onHideNode == "function"){
+                this.visible_nodes[n].onHideNode()
+            }
+        }
+
         this.visible_nodes = [];
         this.node_dragged = null;
         this.node_over = null;
@@ -4527,6 +4536,7 @@ LGraphNode.prototype.executeAction = function(action)
         if (!this._graph_stack || this._graph_stack.length == 0) {
             return;
         }
+        this.clear();
         var subgraph_node = this.graph._subgraph_node;
         var graph = this._graph_stack.pop();
         this.selected_nodes = {};
@@ -5249,11 +5259,11 @@ LGraphNode.prototype.executeAction = function(action)
             }
             this.dirty_bgcanvas = true;
         } else if (this.dragging_canvas) {
-            console.log("DRAGGING",mouse,delta)
-            /*
+            //console.log("DRAGGING",mouse,delta)
+
             this.ds.offset[0] += delta[0] / this.ds.scale;
             this.ds.offset[1] += delta[1] / this.ds.scale;
-            */
+            /*
             console.log(this)
             this.ctx.save();
             this.ctx.fillStyle = "#ff8888";
@@ -5263,7 +5273,7 @@ LGraphNode.prototype.executeAction = function(action)
             this.ctx.moveTo(mouse[0], mouse[1]);
             this.ctx.lineTo(mouse[0]+delta[0], mouse[1]+delta[1]);
             this.ctx.stroke();
-            this.ctx.restore()
+            this.ctx.restore()*/
 
             this.dirty_canvas = true;
             this.dirty_bgcanvas = true;
@@ -6521,12 +6531,24 @@ LGraphNode.prototype.executeAction = function(action)
             ctx.save();
             this.ds.toCanvasContext(ctx);
 
+
+
             //draw nodes
             var drawn_nodes = 0;
             var visible_nodes = this.computeVisibleNodes(
                 null,
                 this.visible_nodes
             );
+            if(!this.lastVisibleNodes){
+                this.lastVisibleNodes=JSON.parse(JSON.stringify(visible_nodes))
+                console.log("INITAL VIS NODES",this.lastVisibleNodes)
+            }else{
+                for (var i = 0; i < this.lastVisibleNodes.length; ++i) {
+                    var node = this.lastVisibleNodes[i];
+                    console.log("LAST VIS NODE",node)
+                }
+            }
+
 
             for (var i = 0; i < visible_nodes.length; ++i) {
                 var node = visible_nodes[i];
@@ -7392,7 +7414,8 @@ LGraphNode.prototype.executeAction = function(action)
                 title_mode != LiteGraph.TRANSPARENT_TITLE &&
                 (node.constructor.title_color || this.render_title_colored)
             ) {
-                var title_color = node.constructor.title_color || fgcolor;
+                //allow a node to dynamically set thier title color
+                var title_color = node.title_color || node.constructor.title_color || fgcolor;
 
                 if (node.flags.collapsed) {
                     ctx.shadowColor = node.shadow_color || LiteGraph.DEFAULT_SHADOW_COLOR;
@@ -9203,6 +9226,12 @@ LGraphNode.prototype.executeAction = function(action)
                     //ESC
                     dialog.close();
                 } else if (e.keyCode == 13) {
+
+                    //if they do multiple searchs, spread out the resulting nodes that get added
+                    setTimeout(()=>{
+                        LGraphCanvas.active_canvas.last_mouse_position[0] += 200
+                    },30)
+
                     if (selected) {
                         select(selected.innerHTML);
                     } else if (first) {
