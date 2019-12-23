@@ -84,7 +84,7 @@
         proxy: null, //used to redirect calls
         node_images_path: "",
 
-        debug: true,
+        debug: false,
         catch_exceptions: true,
         throw_errors: true,
         allow_scripts: false, //if set to true some nodes like Formula would be allowed to evaluate code that comes from unsafe sources (like node configuration), which could lead to exploits
@@ -1182,7 +1182,7 @@
             node.onAdded(this);
         }
 
-        console.log("this.config.align_to_grid",this.config.align_to_grid)
+        //console.log("this.config.align_to_grid",this.config.align_to_grid)
         //if (this.config.align_to_grid) {
             node.alignToGrid();
         //}
@@ -1779,9 +1779,9 @@
 
     /* Called when something visually changed (not the graph!) */
     LGraph.prototype.change = function() {
-        if (LiteGraph.debug) {
-            console.log("Graph changed");
-        }
+        //if (LiteGraph.debug) {
+            //console.log("Graph changed");
+        //}
         this.sendActionToCanvas("setDirty", [true, true]);
         if (this.on_change) {
             this.on_change(this);
@@ -4102,12 +4102,14 @@ LGraphNode.prototype.executeAction = function(action)
         element.addEventListener("mousedown", this._binded_mouse_callback);
         element.addEventListener("mousemove", this._binded_mouse_callback);
 
+        /*
         element.addEventListener(
             "mousewheel",
             this._binded_mouse_callback,
             false
         );
         element.addEventListener("wheel", this._binded_mouse_callback, false);
+        */
     };
 
     DragAndScale.prototype.computeVisibleArea = function() {
@@ -4663,7 +4665,7 @@ LGraphNode.prototype.executeAction = function(action)
 
         canvas.addEventListener("mousedown", this._mousedown_callback, true); //down do not need to store the binded
         canvas.addEventListener("mousemove", this._mousemove_callback);
-        canvas.addEventListener("mousewheel", this._mousewheel_callback, false);
+        //canvas.addEventListener("mousewheel", this._mousewheel_callback, false);
 
         canvas.addEventListener("contextmenu", this._doNothing);
         canvas.addEventListener(
@@ -4712,10 +4714,10 @@ LGraphNode.prototype.executeAction = function(action)
         var document = ref_window.document;
 
         this.canvas.removeEventListener("mousedown", this._mousedown_callback);
-        this.canvas.removeEventListener(
+        /*this.canvas.removeEventListener(
             "mousewheel",
             this._mousewheel_callback
-        );
+        );*/
         this.canvas.removeEventListener(
             "DOMMouseScroll",
             this._mousewheel_callback
@@ -4899,9 +4901,10 @@ LGraphNode.prototype.executeAction = function(action)
             }
         }
 
-        if (e.which == 1) {
+        if (e.which == 1 || this.selectToolActive) {
             //left button mouse
-            if (e.ctrlKey) {
+
+            if (e.ctrlKey || this.selectToolActive) {
                 this.dragging_rectangle = new Float32Array(4);
                 this.dragging_rectangle[0] = e.canvasX;
                 this.dragging_rectangle[1] = e.canvasY;
@@ -5148,9 +5151,11 @@ LGraphNode.prototype.executeAction = function(action)
                     }
                 }
 
-                if (is_double_click && !this.read_only ) {
+                //dont bring up search box on double click anymore
+
+                /*if (is_double_click && !this.read_only ) {
                     this.showSearchBox(e);
-                }
+                }*/
 
                 clicking_canvas_bg = true;
             }
@@ -5836,7 +5841,7 @@ LGraphNode.prototype.executeAction = function(action)
         }
 
         if (e.type == "keydown") {
-            console.log("KEYDOWN")
+            //console.log("KEYDOWN")
 
             if(e.key == "Escape") {
                 this.closeSubgraph()
@@ -6754,7 +6759,7 @@ LGraphNode.prototype.executeAction = function(action)
             ctx.fillText(
                 title + subgraph_node.getTitle(),
                 canvas.width * 0.5,
-                40
+                canvas.height - 60
             );
             ctx.restore();
         }
@@ -9167,7 +9172,7 @@ LGraphNode.prototype.executeAction = function(action)
         var dialog = document.createElement("div");
         dialog.className = "litegraph litesearchbox graphdialog rounded";
         dialog.innerHTML =
-            "<span class='name'>Search</span> <input autofocus type='text' class='value rounded'/><div class='helper'></div>";
+            "<input autofocus type='text' width='100%' height='100%' style='z-index:99;font-size:18px;' class='value rounded'/><div class='helper'></div>";
         dialog.close = function() {
             that.search_box = null;
             document.body.focus();
