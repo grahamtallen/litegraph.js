@@ -578,6 +578,7 @@
             }
         }
 
+
         //nodes
         this._nodes = [];
         this._nodes_by_id = {};
@@ -4438,7 +4439,7 @@ LGraphNode.prototype.executeAction = function(action)
 
         console.log("this.visible_nodes",)
         for(let n in this.visible_nodes){
-            console.log(this.visible_nodes[n])
+            //console.log(this.visible_nodes[n])
             if(this.visible_nodes[n] && this.visible_nodes[n] && typeof this.visible_nodes[n].onHideNode == "function"){
                 this.visible_nodes[n].onHideNode()
             }
@@ -5213,6 +5214,7 @@ LGraphNode.prototype.executeAction = function(action)
      * @method processMouseMove
      **/
     LGraphCanvas.prototype.processMouseMove = function(e) {
+
         if (this.autoresize) {
             this.resize();
         }
@@ -5221,8 +5223,12 @@ LGraphNode.prototype.executeAction = function(action)
             return;
         }
 
+
         LGraphCanvas.active_canvas = this;
         this.adjustMouseEvent(e);
+
+
+
         var mouse = [e.localX, e.localY];
         var delta = [
             mouse[0] - this.last_mouse[0],
@@ -5232,6 +5238,8 @@ LGraphNode.prototype.executeAction = function(action)
         this.canvas_mouse[0] = e.canvasX;
         this.canvas_mouse[1] = e.canvasY;
         e.dragging = this.last_mouse_dragging;
+
+
 
         if (this.node_widget) {
             this.processNodeWidgets(
@@ -5264,21 +5272,23 @@ LGraphNode.prototype.executeAction = function(action)
             }
             this.dirty_bgcanvas = true;
         } else if (this.dragging_canvas) {
-            //console.log("DRAGGING",mouse,delta)
 
-            this.ds.offset[0] += delta[0] / this.ds.scale;
-            this.ds.offset[1] += delta[1] / this.ds.scale;
-            /*
-            console.log(this)
-            this.ctx.save();
-            this.ctx.fillStyle = "#ff8888";
-            this.ctx.strokeStyle = "#88ff88";
-            this.ctx.lineWidth = 5; // initial brush width
-            this.ctx.beginPath();
-            this.ctx.moveTo(mouse[0], mouse[1]);
-            this.ctx.lineTo(mouse[0]+delta[0], mouse[1]+delta[1]);
-            this.ctx.stroke();
-            this.ctx.restore()*/
+            //but then check if inking instead....
+
+
+            //console.log("drawing",this.drawing)
+            if(this.drawing){
+                if(!this.ink) this.ink = []
+                if(delta[0]!=0||delta[1]!=0){
+                    this.ink.push([e.localX-this.ds.offset[0], e.localY-this.ds.offset[1],e.localX-delta[0]-this.ds.offset[0], e.localY-delta[1]-this.ds.offset[1],this.drawing])
+                }
+            }
+            else
+            {
+                this.ds.offset[0] += delta[0] / this.ds.scale;
+                this.ds.offset[1] += delta[1] / this.ds.scale;
+            }
+
 
             this.dirty_canvas = true;
             this.dirty_bgcanvas = true;
@@ -6520,6 +6530,25 @@ LGraphNode.prototype.executeAction = function(action)
         } else {
             ctx.drawImage(this.bgcanvas, 0, 0);
         }
+
+        //console.log("DRAWING ink",this.ink)
+        this.ctx.save();
+        this.ctx.lineCap = 'round'
+        this.ctx.lineJoin = "round";
+        this.ctx.shadowBlur = 4
+        this.ctx.lineWidth = 5; // initial brush width
+        for(let i in this.ink){
+            this.ctx.strokeStyle = this.ink[i][4]
+            this.ctx.shadowColor = this.ink[i][4]
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.ink[i][0]+this.ds.offset[0]-1, this.ink[i][1]+this.ds.offset[1]-1);
+            this.ctx.lineTo(this.ink[i][2]+this.ds.offset[0], this.ink[i][3]+this.ds.offset[1]);
+            this.ctx.stroke();
+        }
+        this.ctx.restore()
+
+
+
 
         //rendering
         if (this.onRender) {
