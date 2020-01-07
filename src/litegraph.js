@@ -1,6 +1,13 @@
+/*
+
+  this is an edited version of https://github.com/jagenjo/litegraph.js
+
+  my version is messy, but it's for eth.build
+
+ */
 (function(global) {
     // *************************************************************
-    //   LiteGraph CLASS                                     *******
+    //   LiteGraph CLASS                                     ******* //
     // *************************************************************
 
     /**
