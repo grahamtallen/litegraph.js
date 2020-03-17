@@ -3332,7 +3332,7 @@
 
         target_slot = target_slot || 0;
 
-        console.log("CONNECT ",this.id,slot,target_node.id,target_slot)
+        //console.log("CONNECT ",this.id,slot,target_node.id,target_slot)
 
         if (!this.graph) {
             //could be connected before adding it to a graph
