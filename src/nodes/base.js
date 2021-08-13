@@ -34,16 +34,12 @@
 
         this.subgraph.onInputAdded = this.onSubgraphNewInput.bind(this);
         this.subgraph.onInputRenamed = this.onSubgraphRenamedInput.bind(this);
-        this.subgraph.onInputTypeChanged = this.onSubgraphTypeChangeInput.bind(
-            this
-        );
+        this.subgraph.onInputTypeChanged = this.onSubgraphTypeChangeInput.bind(this);
         this.subgraph.onInputRemoved = this.onSubgraphRemovedInput.bind(this);
 
         this.subgraph.onOutputAdded = this.onSubgraphNewOutput.bind(this);
         this.subgraph.onOutputRenamed = this.onSubgraphRenamedOutput.bind(this);
-        this.subgraph.onOutputTypeChanged = this.onSubgraphTypeChangeOutput.bind(
-            this
-        );
+        this.subgraph.onOutputTypeChanged = this.onSubgraphTypeChangeOutput.bind(this);
         this.subgraph.onOutputRemoved = this.onSubgraphRemovedOutput.bind(this);
     }
 
@@ -252,7 +248,7 @@
 			name: "",
 			type: "number",
 			value: 0
-		}; 
+		};
 
         var that = this;
 
